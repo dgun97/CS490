@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>"Grade Exams"</title>
+    </head>
+    <style>
+        body{
+                background: #CDD2DC;
+            }
+        .releaseExam{
+            position: absolute;
+            top: 05%;
+            left: 50%;
+            transform: translate(-60%, -50%);
+        }
+        .ans{
+            width: 300px;
+            border: 1px solid green;
+            padding: 5px;
+            margin: 8px;
+        }
+        .deduction{
+            width: 300px;
+            border: 1px solid red;
+            padding: 5px;
+            margin: 8px;
+        }
+        .points{
+            width: 300px;
+            border: 1px solid black;
+            padding: 5px;
+            margin: 8px;
+        }
+        .comment{
+            width: 300px;
+            border: 1px solid black;
+            padding: 5px;
+            margin: 8px;
+        }
+        .grade{
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+    <body>
+        <form class="releaseExam" id="releaseExam">
+            <button type="submit" id="save" value="save">Release Exams</button>
+            <div class="release" id="release"></div>
+        </form>
+        Select a student:
+        <form class="selectName" id="selectName">
+            <table border="1" id ="list">
+          
+            </table>
+            <button type="submit" id="save" value="save">Select student</button>
+        </form>
+        <p></p>
+        <form class="selectTest" id="selectTest">
+            <table border="1" id ="list2">
+          
+            </table>
+            <div class="button" id="button">
+            
+            </div>
+        </form>
+        <form class="test" id="test">
+            <div class="exam" id="exam">
+            </div>
+            <div class="confirm" id="confirm">
+                
+            </div>
+        </form>
+    </body>
+    <script>
+            const name = document.getElementById("selectName");
+            const releaseExam = document.getElementById("releaseExam");
+            const test = document.getElementById("selectTest");
+            const students = document.querySelector("#list");
+            var ucid;
+            var testName;
+            fetch('studentList.php', {
+                method: 'GET',
+            }).then(function (response){
+                response.text().then(function(text){
+                    var table = '';
+                    var data = [];
+                    var rows;
+                    data = JSON.parse(text);
+                    rows = data.length;
+                    table += '<select id="name">';
+                    for(var r = 0; r < rows; r++){ 
+                        table += '<option>' + data[r]["username"] + '</option>';
+                    }
+                    table += '</select>';
+                    students.innerHTML = table;
+                });                     
+                    return response;
+                }).then(function(text){
+                    console.log(text);
+                }).catch(function(error){
+                    console.error(error);
+                })
+
+                const release = document.querySelector("#release");
+                releaseExam.addEventListener('submit', function (e) {
+                    release.innerHTML = "All Exams Released!"
+                    e.preventDefault();
+                    const formData = new FormData();
+                    fetch('releaseTest.php', {
+                    method: 'POST',
+                    body: formData,
+                    }).then(function (response){
+                        response.text().then(function(text){
+                        });                     
+                    return response;
+                    }).then(function(text){
+                        console.log(text);
+                    }).catch(function(error){
+                        console.error(error);
+                    })
+                });
+
+
+                name.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const displayTestList = document.querySelector("#list2");
+                    const displayButton = document.querySelector("#button");
+                    var d = '';
+                    d += '<button type="submit" id="save" value="save">Select exam</button>'
+                    var selectedName = document.getElementById("name");
+                    ucid = selectedName.options[selectedName.selectedIndex].text;
+                    const formData = new FormData(this);
+                    formData.append("ucid", ucid);
+                    fetch('studentTestList.php', {
+                        method: 'POST',
+                        body: formData,
+                    }).then(function (response){
+                        response.text().then(function(text){
+                            var table = '';
+                            var data = [];
+                            var rows;
+                            data = JSON.parse(text);
+                            rows = data.length;
+                            table += '<select id="test">';
+                            for(var r = 0; r < rows; r++){ 
+                                table += '<option>' + data[r]["name"] + '</option>';
+                            }
+                            table += '</select>';
+                            displayTestList.innerHTML = table;
+                            displayButton.innerHTML = d;
+                    });                     
+                        return response;
+                    }).then(function(text){
+                        console.log(text);
+                    }).catch(function(error){
+                        console.error(error);
+                    })
+                });
+
+                function sum(){
+                    var txtFirstNo = document.getElementById('txtFirstNo').value;
+                    var txtSecondNo = document.getElementById('txtSecondNo').value;
+                    var result = parseInt(txtFirstNo) + parseInt(txtSecondNo);
+                    if (!isNaN(result)) {
+                    document.getElementById('txtResult').value = result;
+                    }
+                }
+
+
+                const txt = [];
+                const ans1 = [];
+                const ans2 = [];
+                const ans3 = [];
+                const ans4 = [];
+                const ans5 = [];
+                const ans6 = [];
+                const answer = [];
+                const points = [];
+                const grade = [];
+                const comments = [];
+                const deduction = [];
+                const feedback = [];
+                var adjust = [];
+                var sFeed = [];
+                var sDeduct = [];
+                const totalD = [];
+                let count = 0;
+                test.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    const displayTest = document.querySelector("#exam");
+                    const q = document.querySelector("#results");
+                    var selected = document.getElementById("test");
+                    testName = selected.options[selected.selectedIndex].text;
+                    const formData = new FormData();
+                    formData.append("ucid", ucid);
+                    formData.append("name", testName);
+                    fetch('previewTest.php', {
+                        method: 'POST',
+                        body: formData,
+                    }).then(function (response){
+                        response.text().then(function(text){
+                            var display = '';
+                            var data = [];
+                            var rows;
+                            data = JSON.parse(text);
+                            size = data.length;
+                            for(let i = 0; i < size; i++){
+                                adjust.push([]);
+                                txt[i] = data[i]["txt"];
+                                answer[i] = data[i]["answer"];
+                                grade[i] = data[i]["grade"]
+                                deduction[i] = data[i]["deductions"];
+                                feedback[i] = data[i]["feedback"];
+                                ans1[i] = data[i]["ans1"];
+                                ans2[i] = data[i]["ans2"];
+                                ans3[i] = data[i]["ans3"];
+                                ans4[i] = data[i]["ans4"];
+                                ans5[i] = data[i]["ans5"];
+                                ans6[i] = data[i]["ans6"];
+                                points[i] = data[i]["points"];
+                            }
+                            display += '<p></p>';
+                            for(let j = 0; j < size; j++){
+                                if(j > 0)
+                                display += '<p></p>';
+                                display += (j+1) + ")   ";
+                                display += '<span>' + txt[j] + '</span>';
+                                display += '<p></p>';
+                                display += '<span class="ans">' + "Student Answer: " + answer[j] + '</span>';
+                                display += '<p></p>';
+                                display += '<table border="1" id ="results">';
+                                display += '<tr>';
+                                    display += '<td>' + "Feedback" + '</td>';
+                                    display += '<td>' + "Deduction" + '</td>';
+                                    display += '<td>' + "Adjustment" + '</td>';
+                                display += '</tr>';
+                                sFeed = feedback[j].split(",");
+                                sDeduct = deduction[j].split(",");
+                                for(let k = 0; k < sFeed.length; k++){
+                                    adjust[j][k] = sDeduct[k];
+                                    totalD[count] = sDeduct[k];
+                                    display += '<tr>';
+                                        display += '<td>' + sFeed[k] + '</td>';
+                                        display += '<td>' + sDeduct[k] + '</td>';
+                                        display += '<td>' + '<input rows=1 columns=1 style="width:50%;" class="adj">' + '</td>';
+                                    display += '</tr>';
+                                    count += 1;
+                                }
+                                display += '</table>';
+                                display += '<p></p>';
+                                display += '<span class="points">' + "Grade: " + grade[j] + " /" + points[j] + '</span>';
+                                display += '<p></p>';
+                                display += '<textarea rows=4 columns=7 style="width:15%;" class="comment" placeholder="Comments..."></textarea>';
+                                display += '<br>';
+                            }
+                            display += '<p></p>';
+                            display += '<button type="submit" id="save" value="save">Save exam</button>'
+                            displayTest.innerHTML = display;
+                            var commentElements = document.querySelectorAll('.comment');
+                            for(let k = 0; k < commentElements.length; k++){
+                                commentElements[k].id= 'comment' + (k+1);
+                            }
+                            var adjElements = document.querySelectorAll('.adj');
+                            for(let j = 0; j < adjElements.length; j++){
+                                adjElements[j].id= 'adj' + (j+1);
+                                document.getElementById('adj' + (j+1)).value = totalD[j];
+                            }
+                    });                     
+                        return response;
+                    }).then(function(text){
+                        console.log(text);
+                    }).catch(function(error){
+                        console.error(error);
+                    })
+                });
+
+
+
+
+
+                const rExam = document.getElementById("test");
+                const confirm = document.querySelector("#confirm");
+                let temp;
+                let temp2 = 0;
+                let grdTemp = 0;
+                let defCount = 1;
+                var t;
+                rExam.addEventListener('submit', function (e) {
+                    for(let i = 0; i < grade.length; i++){
+                        for(let j = 0; j < adjust[i].length; j++){
+                            temp = document.getElementById("adj" + defCount).value;
+                            temp = parseFloat( temp.replace(/^"|"$/g, ""));
+                            adjust[i][j] = temp;
+                            temp2 += temp;
+                            defCount += 1;
+                        }
+                        grdTemp = points[i];
+                        t = temp2 + parseFloat(grdTemp);
+                        t = t.toFixed(2);
+                        grade[i] = String(t);
+                        temp2 = 0;
+                    }
+                    confirm.innerHTML = "Test Graded!";
+                    e.preventDefault();
+                    for(let f = 0; f < txt.length; f++){
+                        const formData2 = new FormData();
+                        formData2.append("ucid", ucid);
+                        formData2.append("name", testName);
+                        formData2.append("question_id", (f+1));
+                        formData2.append("grade", grade[f]);
+                        formData2.append("deductions", adjust[f]);
+                        formData2.append("comment","Comment: " + document.getElementById("comment"+(f+1)).value);
+                        fetch('editedTest.php', {
+                        method: 'POST',
+                        body: formData2,
+                        }).then(function (response){
+                            response.text().then(function(text){
+                            });                     
+                        return response;
+                        }).then(function(text){
+                            console.log(text);
+                        }).catch(function(error){
+                            console.error(error);
+                        })
+                    }
+                });
+
+
+    </script>
+</html>

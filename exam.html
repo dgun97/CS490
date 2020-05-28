@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <title>Create Exam</title>
+    </head>
+    <style>
+        /* Split the screen in half */
+        .split {
+        height: 100%;
+        width: 50%;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        overflow-x: hidden;
+        padding-top: 20px;
+        }
+
+        /* Control the left side */
+        .left {
+        left: 0;
+        background-color: rgb(184, 153, 153);
+        }
+
+        /* Control the right side */
+        .right {
+        right: 0;
+        background-color: rgb(138, 179, 206);
+        }
+
+        .list {
+            display: flex;
+            flex-flow: column;
+            flex: 1;
+            width: 350px;
+            min-width: 250px;
+            max-width: 600px;
+            height: 900px;
+            min-height: 150px;
+            background-color: rgba(0,0,0,0.1);
+            margin: 5px;
+            padding: 8px;
+            transition: all 0.2s linear;
+        }
+        .listRight {
+            display: flex;
+            flex-flow: column;
+            flex: 1;
+            width: 350px;
+            min-width: 250px;
+            max-width: 600px;
+            height: 1000px;
+            min-height: 150px;
+            background-color: rgba(0,0,0,0.1);
+            margin: 5px;
+            padding: 8px;
+            transition: all 0.2s linear;
+        }
+        .points {
+            display: flex;
+            position: absolute;
+            top: 53%;
+            left: 100%;
+            transform: translate(-0%, -50%);
+            flex-flow: column;
+            flex: 1;
+            width: 100px;
+            min-width: 50px;
+            max-width: 100px;
+            height: 900px;
+            min-height: 50px;
+            background-color: rgba(0,0,0,0.1);
+            margin: 8px;
+            padding: 10px;
+            transition: all 0.2s linear;
+        }
+
+        .legend{
+            position: absolute;
+            top: 20%;
+            left: 80%;
+            font: message-box;
+            display: flex;
+            flex-flow: column;
+            flex: 1;
+            width: 100px;
+            min-width: 20px;
+            max-width: 600px;
+            height: 170px;
+            min-height: 20px;
+            background-color: rgba(0,0,0,0.1);
+            margin: 5px;
+            padding: 8px;
+            transition: all 0.2s linear;
+        }
+        .total{
+            position: absolute;
+            top: 95%;
+            left: 30%;
+            font: message-box;
+            display: flex;
+            flex-flow: column;
+            flex: 1;
+            width: 120px;
+            min-width: 20px;
+            max-width: 600px;
+            height: 20px;
+            min-height: 20px;
+            background-color: rgba(0,0,0,0.1);
+            margin: 5px;
+            padding: 8px;
+            transition: all 0.2s linear;
+        }
+
+        .questions {
+            background-color: antiquewhite;
+            width: 325px;
+            border-radius: 2px;
+            padding: 8px 8px;
+            text-align: left;
+            font-size: 13px;
+            margin: 2px 0px;
+            font-size: 10px;
+        }
+
+        /* If you want the content centered horizontally and vertically */
+        .centered {
+        position: absolute;
+        top: 7%;
+        left: 11%;
+        transform: translate(-10%, -10%);
+        text-align: start;
+        }
+
+        /* Style the image inside the centered container, if needed */
+        .centered img {
+        width: 150px;
+        border-radius: 50%;
+        }
+    </style>
+    <div class="split left">
+        <div class="centered">
+                <form name="examName" id="examName">
+                    <h2>Create Exam</h2>
+                    Exam name:<br>
+                    <input type="text" name="name" placeholder="Enter Exam Name" id="name"><br>
+                </form>
+                <form name="examQuestion" id="examQuestion">
+                    Select Questions:<br>      
+                    <div class="list" id="examq" name="examq">
+
+                    </div>
+                    <div class="points" id="points" name="points">
+
+                    </div>
+                    <p></p>
+                    <button type="submit" id="save" value="save">Save</button>
+                    <div class="total" id="total">
+                        Total Points: 100
+                    </div>
+                </form>
+                <p id="done" class="done"></p>
+        </div>
+    </div>
+    <div class="split right">
+        <div class="centered">
+            <form class="searchq" id="searchq">
+                    <h1>Question Bank</h1>
+                    Keyword:
+                    <input type="text" name="keyword" placeholder="Search question keyword" id="keyword">
+                    Topic:
+                    <select name="topic" id="topic">
+                        <option value="math">math</option>
+                        <option value="words">words</option>
+                    </select>
+                    Difficulty:
+                    <select name="level" id="level">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                    </select>
+                    <button type="submit" id="search" value="search">Search</button>
+                    <p></p>
+                    <div class="legend">
+                            Format:<br> 1)Question<br>
+                                    2)Constraint
+                                    3)Testcase 1<br>
+                                    4)Testcase 2<br>
+                                    5)Testcase 3<br>
+                                    6)Testcase 4<br>
+                                    7)Testcase 5<br>
+                                    8)Testcase 6<br>
+                    </div>
+                    <div class="listRight" id="results" >
+
+                    </div>
+                    <p></p>
+                </form>
+            </div>
+    </div>
+    <script>
+        
+        const searchq = document.getElementById("searchq");
+        const tableOfQuestions = document.querySelector("#results");
+        const listOfPoints = document.querySelector("#points");
+        var points = '';
+        let listOfQuestions = [];
+        let num = 1;
+        let count;
+        let rows = 0;
+        let storage;
+        let keepTrack = 0;
+        searchq.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('searchq.php', {
+                  method: 'POST',
+                  body: formData,
+            }).then(function (response){
+                response.text().then(function(text){
+                    count = 0;
+                    var table = '';
+                    var data = [];
+                    data = JSON.parse(text);
+                    rows = data.length;
+                    for(var r = 0; r < rows; r++){
+                            table += '<div draggable="true" class="questions">';
+                                table += data[r]["txt"]+'<br>';
+                                table += data[r]["cs"]+'<br>';
+                                table += data[r]["ans1"]+'<br>';
+                                table += data[r]["ans2"]+'<br>';
+                                table += data[r]["ans3"]+'<br>';
+                                table += data[r]["ans4"]+'<br>';
+                                table += data[r]["ans5"]+'<br>';
+                                table += data[r]["ans6"]+'<br>';
+                            table += '</div>';
+                    }
+
+                    if(num > 1){
+                        rows += storage;
+                    }
+                    
+                    tableOfQuestions.innerHTML = table;
+                    
+                    const list_items = document.querySelectorAll('.questions');
+                    const lists = document.querySelectorAll('.list');
+                    let draggedItem = null;
+                    for (let i = 0; i < list_items.length; i++) {
+                        const item = list_items[i];
+                        item.addEventListener('dragstart', function () {
+                            draggedItem = item;
+                            setTimeout(function () {
+                                item.style.display = 'none';
+                            }, 0)
+                        });
+
+                        item.addEventListener('dragend', function () {
+                            setTimeout(function () {
+                                draggedItem.style.display = 'block';
+                                draggedItem = null;
+                            }, 0);
+                        })
+
+                        for (let j = 0; j < lists.length; j ++) {
+                            const list = lists[j];
+
+                            list.addEventListener('dragover', function (e) {
+                                e.preventDefault();
+                            });
+                            
+                            list.addEventListener('dragenter', function (e) {
+                                e.preventDefault();
+                                this.style.backgroundColor = 'rgba(0, 0, 0, 0.2)';
+                            });
+
+                            list.addEventListener('dragleave', function (e) {
+                                this.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                            });
+                            list.addEventListener('drop', function (e) {
+                                sTrack = keepTrack;
+                                storage = rows;
+                                console.log('drop');
+                                count += 1;
+                                if(count % rows == 0){
+                                    if(num > 1){
+                                        if(draggedItem != null)
+                                            points += '<p></p>';
+                                    }
+                                    if(draggedItem != null){
+                                        this.append(draggedItem);
+                                        listOfQuestions[keepTrack] = draggedItem;
+                                        points += (num) + " " + '<input type="text" id="point" class="point">';
+                                        num += 1;
+                                        keepTrack += 1;
+                                    }
+                                }
+                                listOfPoints.innerHTML = points;
+                                this.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
+                            });
+                        } 
+                    }              
+                });                     
+                    return response;
+                }).then(function(text){
+                    console.log(text);
+                }).catch(function(error){
+                    console.error(error);
+                })
+            });
+
+            const examQuestion = document.getElementById("examQuestion");
+            const examName = document.getElementById("examName");
+            let questions= [];
+            let txt = [];
+            let rawPoints = [];
+            let parsedPoints = [];
+            let ans1= [];
+            let ans2= [];
+            let ans3= [];
+            let ans4= [];
+            let ans5= [];
+            let ans6= [];
+            let cs= [];
+            let tmp = [];
+            let test = [[],[]];
+            let total = 0;
+            //set up 
+            examQuestion.addEventListener('submit', function (e) {
+                e.preventDefault();
+                var testName = document.getElementById("name").value;
+                const ps = document.querySelectorAll(".point");
+                for(let k = 0; k < ps.length; k++){
+                    ps[k].id= 'point' + (k+1);
+                }
+                const formData = new FormData(examName);
+                let count = 0;
+                let size = listOfQuestions.length;
+                for(let k = 0; k < size; k++){
+                    questions[count] = listOfQuestions[k].innerHTML;
+                    count += 1;
+                }
+
+                //rest of the arrays filled
+                for(let i = 0; i < questions.length; i++){
+                    tmp = questions[i].split("<br>");
+                    txt[i] = tmp[0];
+                    cs[i] = tmp[1];
+                    ans1[i] = tmp[2];
+                    ans2[i] = tmp[3];
+                    ans3[i] = tmp[4];
+                    ans4[i] = tmp[5];
+                    ans5[i] = tmp[6];
+                    ans6[i] = tmp[7];
+                    tmp.length = 0;
+                }
+                
+                let totalSize = questions.length;
+                fetch('examName.php', {
+                    method: 'POST',
+                    body: formData,
+                }).then(function (response){
+                    for(let w = 0; w < totalSize; w++){
+                        const formDataArray = new FormData();
+                        formDataArray.delete("point");
+                        formDataArray.append("name", testName);
+                        formDataArray.append("txt", txt[w]);
+                        formDataArray.append("cs", cs[w]);
+                        formDataArray.append("ans1", ans1[w]);
+                        formDataArray.append("ans2", ans2[w]);
+                        formDataArray.append("ans3", ans3[w]);
+                        formDataArray.append("ans4", ans4[w]);
+                        formDataArray.append("ans5", ans5[w]);
+                        formDataArray.append("ans6", ans6[w]);
+                        formDataArray.append("points", document.getElementById("point"+(w+1)).value);
+                        fetch('examQuestion.php', {
+                        method: 'POST',
+                        body: formDataArray,
+                        }).then(function (response){  
+
+                            return response;
+                        }).then(function(text){
+                            console.log(text);
+                        }).catch(function(error){
+                            console.error(error);
+                        })   
+                    }
+                    const done = document.querySelector("#done");     
+                    done.textContent = "Exam Saved!";
+                    return response;
+                }).then(function(text){
+                    console.log(text);
+                }).catch(function(error){
+                    console.error(error);
+                })
+            });
+    </script>
+</html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>"Login Page"</title>
+        <style> 
+            body{
+                background: #CDD2DC;
+            }
+            #frm{
+                border: solid gray 1px;
+                margin: 5px auto;
+                border-radius: 5px;
+                background: white;
+                padding: 50px;
+                width: 20%
+            }
+            #btn{
+                color: #fff;
+                background: #FDA15B;
+                padding: 5px;
+                margin-left: 45%;
+            }
+        </style>
+    </head>
+    <body>
+        <form class="myform" id="frm">
+                <label>UCID:</label>
+                <input type="text" name="ucid" id="ucid">
+                <p></p>
+                <label>Password:</label>
+                <input type="password" name="pass" id="pass">
+                <p></p>
+                <button type="submit" id="btn">Login</button>
+                <p></p>
+                <p id="status"></p>  
+        </form>
+        <script> 
+            const form = document.getElementById("frm");
+            const display = document.querySelector("#status");
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const ucid = formData.get("ucid");
+                fetch('login.php', {
+                    method: 'POST',
+                    body: formData,
+                }).then(function (response){
+                    response.text().then(function(text){
+                        var data = [];
+                        var rows;
+                    data = JSON.parse(text);
+                    rows = data.length;
+                        if(text.match("student")){
+                            sessionStorage.setItem("UCID", ucid);
+                            window.location = "https://web.njit.edu/~dg354/CS490/studenthome.html";
+                        }
+                        else if(text.match("teacher")){
+                            window.location = "https://web.njit.edu/~dg354/CS490/teacherhome.html";
+                        }else{
+                            display.textContent = "Invalid UCID or Password";
+                        }
+                    });                     
+                    return response;
+                }).then(function(text){
+                    console.log(text);
+                }).catch(function(error){
+                    console.error(error);
+                })
+            });
+        </script>
+    </body>
+</html>

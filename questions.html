@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html>
+    <head>
+            <title>Questions page</title>
+    </head>
+    <style>
+        /* Split the screen in half */
+        .split {
+        height: 100%;
+        width: 50%;
+        position: fixed;
+        z-index: 1;
+        top: 0;
+        overflow-x: hidden;
+        padding-top: 20px;
+        }
+
+        /* Control the left side */
+        .left {
+        left: 0;
+        background-color: rgb(184, 153, 153);
+        }
+
+        /* Control the right side */
+        .right {
+        right: 0;
+        background-color: rgb(138, 179, 206);
+        }
+
+        .tg {
+            position: absolute;
+            top: 60%;
+            left: 50%;
+            transform: translate(-60%, -50%);
+            text-align: center;
+        }
+
+        /* If you want the content centered horizontally and vertically */
+        .centered {
+        position: absolute;
+        top: 5%;
+        left: 10%;
+        transform: translate(-10%, -10%);
+        text-align: start;
+        }
+
+        /* Style the image inside the centered container, if needed */
+        .centered img {
+        width: 150px;
+        border-radius: 50%;
+        }
+    </style>
+    <div class="split left">
+        <div class="centered">
+            <h2>Create question</h2>
+                <form class="newq" id="newq">
+                    Question Topic:<br>
+                    <select name="topic" id="topic">
+                            <option value="math">math</option>
+                            <option value="words">words</option>
+                    </select><br>
+                    Question:<br>
+                    <textarea rows="4" cols="25" placeholder="Enter question" name="txt" id="txt"></textarea><br>
+                    1st Test Case:<br>
+                    <textarea rows="2" cols="25" placeholder="Enter 1st test case" name="ans1" id="ans1"></textarea><br>
+                    2nd Test Case:<br>
+                    <textarea rows="2" cols="25" placeholder="Enter 2nd test case" name="ans2" id="ans2"></textarea><br>
+                    3rd Test Case:<br>
+                    <textarea rows="2" cols="25" placeholder="Enter 3rd test case" name="ans3" id="ans3"></textarea><br>
+                    4th Test Case:<br>
+                    <textarea rows="2" cols="25" placeholder="Enter 4th test case" name="ans4" id="ans4"></textarea><br>
+                    5th Test Case:<br>
+                    <textarea rows="2" cols="25" placeholder="Enter 5th test case" name="ans5" id="ans5"></textarea><br>
+                    6th Test Case:<br>
+                    <textarea rows="2" cols="25" placeholder="Enter 6th test case" name="ans6" id="ans6"></textarea><br>
+                    Constraints:<br>
+                    <input type="radio" id="cs" name="cs" value="for">For Loop<br>
+                    <input type="radio" id="cs" name="cs" value="while">While Loop<br>
+                    <input type="radio" id="cs" name="cs" value="print">Print<br>
+                    <br>Difficulty:<br>
+                    <select name="level" id="level">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                    </select>
+                    <p></p>
+                    <button type="submit" id="save" value="save">Save</button>
+                    <p></p>
+                    <div id="sub">
+
+                    </div>
+                </form>
+        </div>
+    </div>
+    <div class="split right">
+        <div class="centered">
+            <h2>Question Bank</h2>
+            <form class="searchq" id="searchq">
+                    Keyword:
+                    <input type="text" name="keyword" placeholder="Search question keyword" id="keyword">
+                    Topic:
+                    <select name="topic" id="topic">
+                            <option value="math">math</option>
+                            <option value="words">words</option>
+                    </select>
+                    Difficulty:
+                    <select name="level" id="level">
+                            <option value="Easy">Easy</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Hard">Hard</option>
+                    </select>
+                    <button type="submit" id="search" value="search">Search</button>
+                    <p></p>
+                    <table border="1" id ="results">
+
+                    </table>
+                </form>
+            </div>
+    </div>
+    <script>
+        const newq = document.getElementById("newq");
+        const searchq = document.getElementById("searchq");
+        const q = document.querySelector("#results");
+        const sub = document.querySelector("#sub");
+        newq.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('newq.php', {
+                method: 'POST',
+                body: formData,
+            }).then(function (response){
+                dis = "Question Saved!"; 
+                sub.innerHTML = dis;                 
+                return response;
+            }).then(function(text){
+                console.log(text);
+            }).catch(function(error){
+                console.error(error);
+            })
+        });
+
+
+        searchq.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const formData = new FormData(this);
+
+            fetch('searchq.php', {
+                method: 'POST',
+                body: formData,
+            }).then(function (response){
+                response.text().then(function(text){
+                    var num = "No.";
+                    var question = "Question";
+                    var test1 = "Test Case 1";
+                    var test2 = "Test Case 2";
+                    var test3 = "Test Case 3";
+                    var test4 = "Test Case 4";
+                    var test5 = "Test Case 5";
+                    var test6 = "Test Case 6";
+                    var dlevel = "Difficulty";
+                    var cs = "Constraints";
+                    var table = '';
+                    var data = [];
+                    var rows;
+                    data = JSON.parse(text);
+                    rows = data.length;
+
+                    for(var r = -1; r < rows; r++){
+                        if(r == -1){
+                            table += '<tr>';
+                            for(var c = 0; c < 9; c++){
+                                if(c == 0)
+                                table += '<td>' + num + '</td>';
+                                if(c == 1)
+                                table += '<td>' + question + '</td>';
+                                if(c == 2)
+                                table += '<td>' + cs + '</td>';
+                                if(c == 3)
+                                table += '<td>' + test1 + '</td>';
+                                if(c == 4)
+                                table += '<td>' + test2 + '</td>';
+                                if(c == 5)
+                                table += '<td>' + test3 + '</td>';
+                                if(c == 6)
+                                table += '<td>' + test4 + '</td>';
+                                if(c == 7)
+                                table += '<td>' + test5 + '</td>';
+                                if(c == 8)
+                                table += '<td>' + test6 + '</td>';
+                            }
+                            table += '</tr>';
+                        }else{
+                            table += '<tr>';
+                                table += '<td>' + (r+1) + '</td>';
+                                table += '<td>' + data[r]["txt"] + '</td>';
+                                table += '<td>' + data[r]["cs"] + '</td>';
+                                table += '<td>' + data[r]["ans1"] + '</td>';
+                                table += '<td>' + data[r]["ans2"] + '</td>';
+                                table += '<td>' + data[r]["ans3"] + '</td>';
+                                table += '<td>' + data[r]["ans4"] + '</td>';
+                                table += '<td>' + data[r]["ans5"] + '</td>';
+                                table += '<td>' + data[r]["ans6"] + '</td>';
+                            table += '</tr>';
+                        }
+                    }
+                    q.innerHTML = table;
+                    //q.textContent = table;
+                });                     
+                    return response;
+                }).then(function(text){
+                    console.log(text);
+                }).catch(function(error){
+                    console.error(error);
+                })
+            });
+
+
+    </script>
+</html>

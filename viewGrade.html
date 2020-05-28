@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>"View Grades"</title>
+    </head>
+    <style>
+        body{
+                background: #CDD2DC;
+            }
+        .ans{
+            width: 300px;
+            border: 1px solid green;
+            padding: 5px;
+            margin: 8px;
+        }
+
+        .feedback{
+            width: 300px;
+            border: 1px solid red;
+            padding: 5px;
+            margin: 8px;
+        }
+        .points{
+            width: 300px;
+            border: 1px solid black;
+            padding: 5px;
+            margin: 8px;
+        }
+        .results{
+            width: 300px;
+            border: 1px solid black;
+            padding: 5px;
+            margin: 8px;
+        }
+        .testCase{
+            position: absolute;
+            left: 30%;
+        }
+        .space{
+            margin: 5px;
+            padding: 15px;
+        }
+        .yoda{
+            position: absolute;
+            left: 80%;
+            width: 250px;
+            
+        }
+    </style>
+    <body>
+        Select an exam to view grade:
+        <form class="selectName" id="selectName">
+            <table border="1" id ="list">
+          
+            </table>
+            <button type="submit" id="save" value="save">Select Exam</button>
+        </form>
+        <img src="img/yoda.jpeg" alt="" class="yoda">
+        <p></p>
+        <form class="exam" id="exam">
+            <div class="examForm" id="examForm">
+
+            </div>
+            <p></p>
+        </form>
+    </body>
+    <script>
+            function lessThanZ(element, index, array) {
+                return element < 0;
+            }
+            function lessThanEZ(element, index, array) {
+                return element <= 0;
+            }
+            const form = document.getElementById("selectName");
+            let totalGrade = 0;
+            let totalPoints = 0;
+            const exams = document.querySelector("#list");
+            const ucid = sessionStorage.getItem("UCID");
+            formData = new FormData();
+            formData.append("ucid", ucid);
+            fetch('checkTest.php', {
+                method: 'POST',
+                body: formData,
+            }).then(function (response){
+                response.text().then(function(text){
+                    var table = '';
+                    var data = [];
+                    var rows;
+                    data = JSON.parse(text);
+                    rows = data.length;
+                    table += '<select id="name">';
+                    for(var r = 0; r < rows; r++){ 
+                        table += '<option>' + data[r]["name"] + '</option>';
+                    }
+                    table += '</select>';
+                    exams.innerHTML = table;
+                });                     
+                    return response;
+                }).then(function(text){
+                    console.log(text);
+                }).catch(function(error){
+                    console.error(error);
+                })
+
+                const txt = [];
+                const answer = [];
+                var sAns1 = [];
+                var sAns2 = [];
+                var sAns3 = [];
+                var sAns4 = [];
+                var sAns5 = [];
+                var sAns6 = [];
+                var ans1 = [];
+                var ans2 = [];
+                var ans3 = [];
+                var ans4 = [];
+                var ans5 = [];
+                var ans6 = [];
+                const comment = [];
+                var feedback = [];
+                var deduction = [];
+                var sFeed = [];
+                var sDeduct = [];
+                const points = [];
+                const grade = [];
+                const displayTest = document.querySelector("#examForm");
+                var table = '';
+                form.addEventListener('submit', function (e) {
+                    e.preventDefault();
+                    var selectedName = document.getElementById("name");
+                    var selectedTest = selectedName.options[selectedName.selectedIndex].text;
+                    const formData = new FormData();
+                    formData.append("ucid", ucid);
+                    formData.append("name", selectedTest);
+                    fetch('checkGrade.php', {
+                        method: 'POST',
+                        body: formData,
+                    }).then(function (response){
+                    response.text().then(function(text){
+                        totalGrade = 0;
+                        totalPoints = 0;
+                        var display = '';
+                        var data = [];
+                        var rows;
+                        data = JSON.parse(text);
+                        size = data.length;
+                        for(let i = 0; i < size; i++){
+                            txt[i] = data[i]["txt"];
+                            points[i] = data[i]["points"];
+                            grade[i] = data[i]["grade"];
+                            answer[i] = data[i]["answer"];
+                            ans1[i] = data[i]["ans1"];
+                            ans2[i] = data[i]["ans2"];
+                            ans3[i] = data[i]["ans3"];
+                            ans4[i] = data[i]["ans4"];
+                            ans5[i] = data[i]["ans5"];
+                            ans6[i] = data[i]["ans6"];
+                            deduction[i] = data[i]["deductions"];
+                            feedback[i] = data[i]["feedback"];
+                            comment[i] = data[i]["comment"];
+                        }
+                        for(let k = 0; k < grade.length; k++){
+                            totalGrade = (totalGrade + parseFloat(grade[k]));
+                            totalPoints = (totalPoints + parseFloat(points[k]));
+                        }
+                        for(let j = 0; j < size; j++){
+                            sFeed = [];
+                            sDeduct = [];
+                            if(j > 0){
+                            display += '<div class="space">';
+                            display += '</div>';
+                            }
+                            display += (j+1) + ")   ";
+                            display += '<span>' + txt[j] + '</span>';
+                            display += '<p></p>';
+                            display += '<span class="ans">' + "Your Answer: " + answer[j] + '</span>';
+                            display += '<p></p>';
+                            display += '<table border="1" class="testCase">';
+                            display += '<tr>';
+                                display += '<td>' + "Test Case 1" + '</td>';
+                                display += '<td>' + "Test Case 2" + '</td>';
+                                display += '<td>' + "Test Case 3" + '</td>';
+                                display += '<td>' + "Test Case 4" + '</td>';
+                                display += '<td>' + "Test Case 5" + '</td>';
+                                display += '<td>' + "Test Case 6" + '</td>';
+                            display += '</tr>';
+                            sAns1 = ans1[j].split(",");
+                            sAns2 = ans2[j].split(",");
+                            sAns3 = ans3[j].split(",");
+                            sAns4 = ans4[j].split(",");
+                            sAns5 = ans5[j].split(",");
+                            sAns6 = ans6[j].split(",");
+                            display += '<tr>';
+                            display += '<td>' + "Inputs: ";
+                            for(let f = 0; f < sAns1.length; f++){
+                                if(f == (sAns1.length - 1)){
+                                    display += '<p></p>';
+                                    display += "Output: " + sAns1[f];
+                                    display += '</td>';
+                                    break;
+                                }
+                                display += sAns1[f];
+                                if(f != (sAns1.length -2)){
+                                    display += ",";
+                                }
+                            }
+                            display += '<td>' + "Inputs: ";
+                            for(let f = 0; f < sAns2.length; f++){
+                                if(f == (sAns2.length - 1)){
+                                    display += '<p></p>';
+                                    display += "Output: " + sAns2[f];
+                                    display += '</td>';
+                                    break;
+                                }
+                                display += sAns2[f];
+                                if(f != (sAns2.length -2)){
+                                    display += ",";
+                                }
+                            }
+                            display += '<td>' + "Inputs: ";
+                            for(let f = 0; f < sAns3.length; f++){
+                                if(f == (sAns3.length - 1)){
+                                    display += '<p></p>';
+                                    display += "Output: " + sAns3[f];
+                                    display += '</td>';
+                                    break;
+                                }
+                                display += sAns3[f];
+                                if(f != (sAns3.length -2)){
+                                    display += ",";
+                                }
+                            }
+                            display += '<td>' + "Inputs: ";
+                            for(let f = 0; f < sAns4.length; f++){
+                                if(f == (sAns4.length - 1)){
+                                    display += '<p></p>';
+                                    display += "Output: " + sAns4[f];
+                                    display += '</td>';
+                                    break;
+                                }
+                                display += sAns4[f];
+                                if(f != (sAns4.length -2)){
+                                    display += ",";
+                                }
+                            }
+                            display += '<td>' + "Inputs: ";
+                            for(let f = 0; f < sAns5.length; f++){
+                                if(f == (sAns5.length - 1)){
+                                    display += '<p></p>';
+                                    display += "Output: " + sAns5[f];
+                                    display += '</td>';
+                                    break;
+                                }
+                                display += sAns5[f];
+                                if(f != (sAns5.length -2)){
+                                    display += ",";
+                                }
+                            }
+                            display += '<td>' + "Inputs: ";
+                            for(let f = 0; f < sAns6.length; f++){
+                                if(f == (sAns6.length - 1)){
+                                    display += '<p></p>';
+                                    display += "Output: " + sAns6[f];
+                                    display += '</td>';
+                                    break;
+                                }
+                                display += sAns6[f];
+                                if(f != (sAns6.length -2)){
+                                    display += ",";
+                                }
+                            }
+                            display += '</tr>';
+                            display += '</table>';    
+                            display += '<p></p>';
+                            sDeduct = deduction[j].split(",");
+                            sFeed = feedback[j].split(",");
+                            for(let k = 0; k < sFeed.length; k++){
+                                if(k == 0 && sDeduct.some(lessThanZ)){
+                                display += '<table border="1" class="results">';
+                                display += '<tr>';
+                                display += '<td>' + "Feedback" + '</td>';
+                                display += '<td>' + "Deduction" + '</td>';
+                                display += '</tr>';
+                                }
+                                if(sDeduct[k] == 0){
+                                        continue;
+                                }
+                                display += '<tr>';
+                                    display += '<td>' + sFeed[k] + '</td>';
+                                    display += '<td>' + sDeduct[k] + '</td>';
+                                display += '</tr>';
+                            }
+                            display += '</table>';
+                            display += '<p></p>';
+                            display += '<span class="feedback">' + comment[j] + '</span>';
+                            display += '<p></p>';
+                            display += '<span class="points">' + "Grade: " + grade[j] + "/"  + points[j] + '</span>';
+                            display += '<p></p>';
+                        }
+                        display += "Final Grade: " + totalGrade + "/" + totalPoints;
+                        displayTest.innerHTML = display;
+                    });                     
+                        return response;
+                    }).then(function(text){
+                        console.log(text);
+                    }).catch(function(error){
+                        console.error(error);
+                    })
+                });
+
+    </script>
+</html>
